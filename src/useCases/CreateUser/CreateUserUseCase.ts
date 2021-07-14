@@ -21,7 +21,8 @@ import { ICreateUserRequestDTO } from './CreateUserDTO'
 
 export class CreateUserUseCase {
   constructor(
-    private usersRepository: IUsersRepository // Automatically creates attribute if it is private
+    private usersRepository: IUsersRepository, // Automatically creates attribute if it is private
+    private mailProvider: IMailProvider
   ) {}
 
   async execute(data: ICreateUserRequestDTO) {
@@ -34,5 +35,18 @@ export class CreateUserUseCase {
     const user = new User(data)
 
     await this.usersRepository.save(user)
+
+    await this.mailProvider.sendMail({
+      to: {
+        name: data.name,
+        email: data.email,
+      },
+      from: {
+        name: 'Meu aplicativo',
+        email: 'app@jvwasquevite.com',
+      },
+      subject: 'Seja bem vindo ao aplicativo',
+      body: '<p>Esse é o corpo do email</p>',
+    })
   }
 }
